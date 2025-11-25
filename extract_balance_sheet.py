@@ -1,6 +1,8 @@
 from openai import OpenAI
 import os
 import json
+from datetime import datetime
+import re
 
 # API配置 - 提取为公共变量，从环境变量获取
 API_KEY = os.getenv("API_KEY")
@@ -205,9 +207,206 @@ def perform_cash_flow_analysis(extracted_data, company_name="某公司", year="2
     
     return answer_content
 
+def generate_cash_flow_report_template(extracted_data, company_name="某公司", year="2024"):
+    """
+    根据提取的财务数据生成符合模板格式的现金流分析报告
+    """
+    print(f"\n正在生成{company_name}{year}现金流测算分析报告...")
+    
+    # 创建一个客户端用于报告生成
+    report_client = OpenAI(
+        api_key=API_KEY,
+        base_url=BASE_URL,
+    )
+    
+    # 构建报告生成指令
+    report_prompt = f"""
+    基于以下从{company_name}{year}年报中提取的财务数据，请生成一份符合现金流测算分析报告模板格式的详细报告：
+
+    {extracted_data}
+
+    请按照以下模板结构生成报告：
+
+    # **{company_name}{year}企业现金流测算分析报告**
+
+    ## 一、报告基本信息
+    - **报告主体**：{company_name}
+    - **报告期间**：{year}年度
+    - **编制日期**：{datetime.now().strftime('%Y年%m月%d日')}
+    - **报告用途**：内部资金管理、融资决策、投资者沟通、预算控制
+
+    ## 二、核心假设与测算方法
+    ### 2.1 测算方法
+    - **历史分析**：采用间接法，从净利润出发调整非现金项目及营运资本变动
+    - **未来预测**：采用直接法，基于合同/订单/预算逐项预测现金流入与流出
+    - **压力测试**：设定悲观/基准/乐观多情景，评估现金流韧性
+
+    ### 2.2 关键假设说明
+    根据财务数据，请分析并填写：
+    | 项目 | 假设内容 |
+    |------|----------|
+    | 收入增长率 | 基于前一年到{year}年的变化 |
+    | 成本结构 | 营业成本占收入比例 |
+    | 资本开支（CAPEX） | 固定资产投资情况 |
+    | 应收账款周转天数 | 基于{year}年数据 |
+    | 应付账款周转天数 | 基于{year}年数据 |
+    | 融资安排 | 借款变动情况 |
+    | 税率 | 实际税率 |
+
+    ## 三、历史现金流分析（间接法）
+    ### 3.1 经营活动现金流（CFO）调节表（单位：元）
+    根据利润表和资产负债表数据，构建调节表：
+    | 项目 | 金额 |
+    |------|------|
+    | 净利润 | [从利润表获取] |
+    | + 折旧与摊销 | [从现金流量表或附注获取] |
+    | + 资产减值损失 | [从利润表获取] |
+    | + 财务费用（利息支出等） | [从利润表获取] |
+    | - 投资收益 | [从利润表获取] |
+    | + 营运资本变动： | |
+    | – 应收账款增加 | [资产负债表期初期末变动] |
+    | – 存货增加 | [资产负债表期初期末变动] |
+    | + 应付账款增加 | [资产负债表期初期末变动] |
+    | + 预收款项增加 | [资产负债表期初期末变动] |
+    | **经营活动现金流净额（CFO）** | **[计算得出]** |
+
+    ## 四、关键现金流指标分析
+    计算并填写：
+    | 指标 | 计算公式 | {year}年值 | 健康阈值 | 评价 |
+    |------|----------|--------|----------|------|
+    | **经营活动现金流（CFO）** | — | [金额] | >0 | [评价] |
+    | **自由现金流（FCF）** | CFO – 资本性支出 | [金额] | >0 | [评价] |
+    | **CFO / 净利润** | — | [比率] | ≥0.8 | [评价] |
+    | **现金比率** | （货币资金 + 短期理财） / 流动负债 | [比率] | ≥0.5 | [评价] |
+    | **现金周转期** | 应收天数 + 存货天数 – 应付天数 | [天数] | 越短越好 | [评价] |
+    | **债务覆盖率（DSCR）** | FCF / （当年到期本金 + 利息） | [比率] | ≥1.2 | [评价] |
+
+    ## 五、营运资金与资本支出校准
+    ### 5.1 应收账款分析
+    - 账龄结构：[从附注获取]
+    - 坏账准备率：[计算]
+    - 主要客户集中度：[从附注获取]
+
+    ### 5.2 存货构成与周转
+    - 原材料 / 在产品 / 产成品占比：[从附注获取]
+    - 存货周转天数：[计算]
+
+    ### 5.3 资本性支出（CAPEX）
+    - 本期实际支出：[从现金流量表获取]
+    - 已签约未执行资本承诺：[从附注获取]
+    - 主要投向：[从附注获取]
+
+    ## 六、未来12个月现金流滚动预测（直接法）
+    基于历史数据和趋势，构建预测：
+    | 月份 | 经营现金流入 | 经营现金流出 | 投资支出 | 融资现金流入 | 融资现金流出 | **期末现金余额** |
+    |------|----------------|----------------|----------|----------------|----------------|------------------|
+    | {int(year)+1}-01 | [预测] | [预测] | [预测] | [预测] | [预测] | [预测] |
+    | ... | ... | ... | ... | ... | ... | ... |
+    | **合计/平均** | [合计] | [合计] | [合计] | [合计] | [合计] | [合计] |
+
+    ## 七、风险情景与压力测试
+    ### 7.1 情景设定
+    | 情景 | 描述 |
+    |------|------|
+    | **基准情景** | 基于历史趋势预测 |
+    | **轻度压力** | 收入下降10%，回款延迟15天 |
+    | **重度压力** | 收入下降20%，主要客户违约 |
+
+    ### 7.2 压力测试结果（关键指标）
+    | 指标 | 基准 | 轻度压力 | 重度压力 |
+    |------|------|----------|----------|
+    | CFO（万元） | [计算] | [计算] | [计算] |
+    | 期末现金余额（万元） | [计算] | [计算] | [计算] |
+    | DSCR | [计算] | [计算] | [计算] |
+
+    ### 7.3 敏感性分析
+    - **收入每下降1%** → CFO 减少约 [金额] 万元
+    - **应收账款周转天数增加10天** → 现金流减少 [金额] 万元
+
+    ## 八、结论与行动建议
+    ### 8.1 主要结论
+    - 当前现金流状况总体[健康/紧张]，主要分析现金流状况
+    - 现金余额可覆盖未来 X 个月刚性支出
+    - 风险点分析
+
+    ### 8.2 管理建议
+    1. **加快回款**：具体建议
+    2. **优化付款节奏**：具体建议
+    3. **控制非必要CAPEX**：具体建议
+    4. **建立应急融资渠道**：具体建议
+    5. **设定预警机制**：具体建议
+
+    请根据实际财务数据填写所有[ ]中的具体数值和分析内容。
+    """
+    
+    content_parts = [
+        {"type": "text", "text": report_prompt}
+    ]
+    
+    reasoning_content = ""  # 定义完整思考过程
+    answer_content = ""     # 定义完整回复
+    is_answering = False   # 判断是否结束思考过程并开始回复
+    enable_thinking = True
+
+    # 创建聊天完成请求 - 使用qwen3-max生成报告
+    completion = report_client.chat.completions.create(
+        model="qwen3-max",
+        messages=[
+            {
+                "role": "user",
+                "content": content_parts,
+            },
+        ],
+        stream=True,
+        # enable_thinking 参数开启思考过程，thinking_budget 参数设置最大推理过程 Token 数
+        extra_body={
+            'enable_thinking': enable_thinking,
+            "thinking_budget": 81920},
+    )
+
+    if enable_thinking:
+        print("\n" + "=" * 20 + "报告生成思考过程" + "=" * 20 + "\n")
+
+    for chunk in completion:
+        delta = chunk.choices[0].delta
+        # 打印思考过程
+        if hasattr(delta, 'reasoning_content') and delta.reasoning_content != None:
+            print(delta.reasoning_content, end='', flush=True)
+            reasoning_content += delta.reasoning_content
+        else:
+            # 开始回复
+            if delta.content != "" and is_answering is False:
+                print("\n" + "=" * 20 + "现金流分析报告" + "=" * 20 + "\n")
+                is_answering = True
+            # 打印回复过程
+            print(delta.content, end='', flush=True)
+            answer_content += delta.content
+
+    print("\n" + "=" * 20 + "完整现金流分析报告" + "=" * 20 + "\n")
+    print(answer_content)
+    
+    return answer_content
+
+
+def save_report_to_file(report_content, company_name="某公司", year="2024"):
+    """
+    将生成的现金流分析报告保存到文件
+    """
+    # 创建报告文件名
+    filename = f"{company_name}_{year}_现金流分析报告.md"
+    filepath = f"/data/financial_analysis/{filename}"
+    
+    # 保存报告内容到文件
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(report_content)
+    
+    print(f"\n现金流分析报告已保存至: {filepath}")
+    return filepath
+
+
 def cash_flow_analysis(pdf_path, company_name="某公司", year="2024"):
     """
-    完整的现金流分析流程：提取数据 -> 现金流测算分析
+    完整的现金流分析流程：提取数据 -> 现金流测算分析 -> 生成报告
     """
     print(f"开始对{company_name}{year}年报进行现金流测算...")
     
@@ -219,11 +418,24 @@ def cash_flow_analysis(pdf_path, company_name="某公司", year="2024"):
     print(f"\n步骤2: 正在使用qwen3-max对{company_name}{year}年报进行现金流分析...")
     analysis_result = perform_cash_flow_analysis(extracted_data, company_name, year)
     
-    # 步骤3: 输出最终结果
+    # 步骤3: 生成符合模板格式的现金流分析报告
+    print(f"\n步骤3: 正在生成{company_name}{year}现金流测算分析报告...")
+    report_content = generate_cash_flow_report_template(extracted_data, company_name, year)
+    
+    # 步骤4: 保存报告到文件
+    print(f"\n步骤4: 保存现金流分析报告...")
+    report_filepath = save_report_to_file(report_content, company_name, year)
+    
+    # 步骤5: 输出最终结果
     print(f"\n=== 现金流测算完成 ===")
     print(f"已成功完成对{company_name}{year}年报的现金流测算分析")
+    print(f"分析报告已保存至: {report_filepath}")
     
-    return analysis_result
+    return {
+        'analysis_result': analysis_result,
+        'report_content': report_content,
+        'report_filepath': report_filepath
+    }
 
 if __name__ == "__main__":
     # 默认分析交银金租2024年报，可以修改为其他公司
