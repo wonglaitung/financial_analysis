@@ -1,0 +1,187 @@
+  **任务说明**
+  您需要从提供的财务报表中提取用于填写DSR计算表(OIC input for DSR cal)和现金流量预测表(OIC input for cashflow)的所有必要数据，严格按照以下要求执行。
+
+  **数据提取要求**
+
+  一、DSR计算表 (OIC input for DSR cal) 所需数据
+
+   1. Borrower - 填入借款人全称，从报表封面或基本信息部分提取
+   2. Total gp exposure - 填入集团总敞口，按财务报表负债合计
+   3. Propose loan amount - [用户指定]
+   4. Loan tenor - [用户指定]
+   5. OIC - 填入客户经理姓名，[用户指定]
+   6. CA - 填入信贷审批人姓名，[用户指定]
+   7. Corp Type - 1 (大型企业) 或 0 (中小企业及贸易)，根据公司性质判断
+   8. Source of financial information - 按实际财务报告来源，从财务报表标题页或审计报告提取
+   9. Type of statement - 最新审计报告. Audited or Unaudited，按审计报告
+   10. Latest Financial - 填入最新财报截止日期，财务报表日期
+   11. Full Year - Y (全年) 或 N (非全年)，根据财报期间判断
+   12. Currency - 按审计报告币种，财务报表货币单位
+   13. Existing LT Term Debt obligation - 所有>1年债务包括当前部分，含长期借款、应付债券、当前部分，从长期借款+应付债券+一年内到期非流动负债提取
+   14. Interest rate of Term Debt - 按知识获取或计算加权平均利率，计算加权平均利率
+   15. LT Term Loan principal repaid p.a. - 按财务报表披露的12个月内到期债务，从一年内到期的长期借款提取
+   16. Bonds & Notes - 按财务报表应付债券披露，应付债券总额
+   17. Interest Rate / Coupon rate - 按债券条款披露，按债券利率披露
+   18. Bonds & Notes maturing within 12 months - 按财务报表披露，一年内到期应付债券
+   19. ST / Revolving loan limit - 按财务报表短期借款，假设滚动除非知悉退出，短期借款总额
+   20. Interest rate of revolver - 按实际利率，实际利率
+   21. EBITDA - 从利润表获取，如波动大可使用过去3年加权平均，压力测试按标准：EBITDA折扣10%，利率加成2%，按利润表计算
+
+  二、现金流量预测表 (OIC input for cashflow) 所需数据
+
+   1. FEY - 填入财报截止日期，财务报表日期
+   2. Sales & growth rate (%) -
+      销售指核心业务收入，参考历史趋势、市场环境、行业变化、监管政策等因素预测，考虑经纪报告数据但不盲从，营业收入+历史趋势+市场环境+行业因素+监管政策
+   3. Current & forecast Gross Profit Margin - 参考历史毛利率和趋势，如波动大采用3年加权平均，考虑原材料价格等关键因素影响，按财务报表毛利/收入计算，考虑趋势
+   4. Current & forecast Depreciation/Amortization charged to COGS - 制造业等企业需区分计入COGS的折旧，未来可假设平价或按新增资本支出计算，按利润表成本中折旧摊销部分
+   5. Operating expenses in absolute amount - 金额形式，汇总销售费用、管理费用、研发费用等现金项目，参考历史趋势，如波动大采用3年加权平均，按利润表营业支出项目汇总
+   6. Operating expenses growth rate - 参考历史增长率，如波动大采用3年加权平均，基于历史数据预测
+   7. Current & forecast Depreciation / Amortization - 除销售成本外的折旧摊销，未来可假设平价，按利润表损益中折旧摊销
+   8. Investment/rental income - 考虑过去3年趋势，如波动大采用3年加权平均或最低贡献，考虑非现金收入部分，按利润表其他收入，考虑稳定性
+   9. of which non-cash investment income - 从投资/租金收入中分离非现金部分，按财务报表附注分离
+   10. Share of contributions from associates or JV - 考虑贡献的持续性和趋势，考虑处置或新投资影响，考虑商业决定因素，按投资收益项目
+   11. Dividend received from Associates or JV - 按现金流量表投资活动，如波动大采用3年平均或保守设为0，现金流量表投资活动
+   12. Dividend receivable - 按资产负债表，通常设为平价或为0，考虑商业决定因素，资产负债表应收股利
+   13. All other non-operating income - 包括利息收入、政府补贴、公允价值收益、处置收益、汇率收益、管理费等，需剔除非经常性项目，按利润表营业外收入，剔除非经常性
+   14. All other non-operating expenditure - 包括资产减值、处置损失、汇率损失等，需关注资产减值和汇率损失趋势，剔除非经常性项目，按利润表营业外支出，关注趋势
+   15. Current & forecast Tax expense rate - 按税费用/税前利润，考虑新市场或税率变化影响，如波动大采用3年加权平均，按所得税费用/税前利润计算
+   16. Current & forecast Dividends payout rate - 按历史分红政策和策略，考虑分红政策变化，考虑股利支付政策，按应付股利/净利润计算
+   17. Current & forecast Dividends payable - 按资产负债表，通常设为平价，资产负债表应付股利
+   18. Current & forecast Bad debt provision / exp - 按营业收入百分比，考虑信用政策、客户信誉、宏观经济等因素，如波动大采用3年加权平均，按信用减值损失/营业收入
+   19. Debtors' t/o (days) - 考虑信用政策和历史趋势，保守原则采用较长天数，如波动大采用3年加权平均，按(应收账款/营业收入)×365计算
+   20. Debtors (absolute amt) - 按资产负债表，资产负债表应收账款
+   21. Inventory t/o (days) - 如适用，按生产周期和库存政策，保守原则采用较长天数，如波动大采用3年加权平均，按(存货/营业成本)×365计算
+   22. Inventory (absolute amt) - 按资产负债表，资产负债表存货
+   23. Creditors' t/o (days) - 按采购政策和历史趋势，保守原则采用较短天数，如波动大采用3年加权平均，按(应付账款/营业成本)×365计算
+   24. Creditor (absolute amt) - 按资产负债表，资产负债表应付账款
+   25. CAPEX (absolute amt) - 按现金流量表投资活动，获取未来扩张计划信息，包括定期维护支出，现金流量表购建固定资产等
+   26. Estimated useful life of CAPEX - 按公司折旧政策，按直线法计算附加折旧，按固定资产折旧政策
+   27. Acquisition of investment - 按现金流量表投资活动，考虑商业决定因素，现金流量表投资支付
+   28. Proceeds of disposal of FA/investment - 按现金流量表投资活动，通常保守设为0，现金流量表处置收益
+   29. all other current assets - 按资产负债表，通常设为平价除非有特殊项目，需解释变动，资产负债表其他流动资产
+   30. all other current liabilities - 按资产负债表，通常设为平价除非有特殊项目，需解释变动，资产负债表其他流动负债
+   31. interco claim - 按资产负债表，通常设为平价或按历史趋势，需解释变动，资产负债表关联方应收款
+   32. interco debt - 按资产负债表，通常设为平价或按历史趋势，需解释变动，资产负债表关联方应付款
+   33. all other long term assets - 按资产负债表，除资本支出外的长期资产，通常设为平价，资产负债表其他非流动资产
+   34. all other long term liabilities - 按资产负债表，除资本支出外的长期负债，通常设为平价，资产负债表其他非流动负债
+   35. Net Proceed of capital issue - 按现金流量表筹资活动，通常保守处理，考虑历史记录和公告，现金流量表吸收投资收到的现金
+   36. Proceed from new bond issue - 按历史记录和市场计划、公告，考虑市场活动，现金流量表发行债券收到的现金
+   37. Bond Repayment - 按到期日分布，参考财务报表到期日信息，现金流量表偿还债务支付的现金
+   38. Cash balance c/f - 按资产负债表现金等价物，不含受限制资金，资产负债表现金及现金等价物
+   39. New Debt (excluding Capex financing) - 考虑历史融资模式、资金需求、还款能力、融资期限等，筹资活动+融资需求+还款能力
+   40. Principal repayment - existing debt - 按到期日分布，参考财务报表到期日信息，如未披露按期限均分，按到期日分布计算
+   41. weighted avg. interest rate - 按DSR表计算结果，考虑市场利率和汇率趋势、利率走势等，按各项债务加权平均计算
+
+  **特殊要求**
+
+  DSR计算表要求：
+   - 所有现有债务需按>1年、12个月内到期分别处理，包括长期借款、应付债券及当前部分
+   - EBITDA如波动大，可使用过去3年加权平均
+   - 压力测试按标准：EBITDA折扣10%，利率加成2%
+   - 现有债务输入需与最新财务报表一致
+   - 新债务需包含银团/俱乐部贷款总额
+   - 所有假设需明确说明并提供依据
+
+  现金流量预测表要求：
+   - 所有假设需基于合理依据并提供支持文件
+   - 考虑宏观经济因素、汇率、利率、行业变化、监管政策等
+   - 非经常性项目需剔除，确保预测合理性
+   - 保守原则：较短期限、较低周转天数、较高风险准备
+   - 预测需考虑前瞻性信息和历史趋势
+   - 按直线法或其他系统合理方法确认经营租赁收入
+   - 货币时间价值影响重大的预计负债需折现
+   - 假设需提供合理解释和依据
+
+  计算公式参考
+   - EBITDA = 营业利润 + 利息支出 - 利息收入 + 折旧 + 摊销
+   - 毛利率 = (营业收入 - 营业成本) / 营业收入
+   - 应收账款周转天数 = (应收账款平均余额 / 营业收入) × 365
+   - 存货周转天数 = (存货平均余额 / 营业成本) × 365
+   - 应付账款周转天数 = (应付账款平均余额 / 营业成本) × 365
+   - 加权平均利率 = (各项债务金额×各自利率)之和 / 债务总额
+
+  **输出格式要求**
+
+  请使用Markdown表格格式严格按照以下结构输出结果：
+
+  DSR计算表数据
+
+  | 序号 | 项目 | 数值 | 数据来源 | 备注 |
+  |------|------|------|----------|------|
+  | 1 | Borrower | [具体数值] | 财务报表 | [如有特殊说明] |
+  | 2 | Total gp exposure | [具体数值] | 财务报表负债合计 | [如有特殊说明] |
+  | 3 | Propose loan amount | [具体数值] | 用户指定 | [如有特殊说明] |
+  | 4 | Loan tenor | [具体数值] | 用户指定 | [如有特殊说明] |
+  | 5 | OIC | [具体数值] | 用户指定 | [如有特殊说明] |
+  | 6 | CA | [具体数值] | 用户指定 | [如有特殊说明] |
+  | 7 | Corp Type | [具体数值] | 根据公司性质 | [如有特殊说明] |
+  | 8 | Source of financial information | [具体数值] | 财务报表标题页 | [如有特殊说明] |
+  | 9 | Type of statement | [具体数值] | 审计报告 | [如有特殊说明] |
+  | 10 | Latest Financial | [具体数值] | 财务报表日期 | [如有特殊说明] |
+  | 11 | Full Year | [具体数值] | 财务报表期间 | [如有特殊说明] |
+  | 12 | Currency | [具体数值] | 财务报表货币单位 | [如有特殊说明] |
+  | 13 | Existing LT Term Debt obligation | [具体数值] | 长期借款+应付债券+一年内到期非流动负债 | [如有特殊说明] |
+  | 14 | Interest rate of Term Debt | [具体数值] | 计算加权平均利率 | [如有特殊说明] |
+  | 15 | LT Term Loan principal repaid p.a. | [具体数值] | 一年内到期的长期借款 | [如有特殊说明] |
+  | 16 | Bonds & Notes | [具体数值] | 应付债券总额 | [如有特殊说明] |
+  | 17 | Interest Rate / Coupon rate | [具体数值] | 按债券利率披露 | [如有特殊说明] |
+  | 18 | Bonds & Notes maturing within 12 months | [具体数值] | 一年内到期应付债券 | [如有特殊说明] |
+  | 19 | ST / Revolving loan limit | [具体数值] | 短期借款总额 | [如有特殊说明] |
+  | 20 | Interest rate of revolver | [具体数值] | 实际利率 | [如有特殊说明] |
+  | 21 | EBITDA | [具体数值] | 按利润表计算 | [如有特殊说明] |
+
+  现金流量预测表数据
+
+  | 序号 | 项目 | 数值 | 数据来源 | 预测依据 |
+  |------|------|------|----------|----------|
+  | 1 | FEY | [具体数值] | 财务报表日期 | [如有预测说明] |
+  | 2 | Sales & growth rate (%) | [具体数值] | 营业收入+历史趋势+市场环境 | 基于历史趋势、市场环境、行业变化 |
+  | 3 | Current & forecast Gross Profit Margin | [具体数值] | 按财务报表毛利/收入 | 基于历史毛利率+关键因素影响 |
+  | 4 | Current & forecast Depreciation/Amortization charged to COGS | [具体数值] | 按利润表成本中折旧摊销部分 | 考虑制造业特殊处理 |
+  | 5 | Operating expenses in absolute amount | [具体数值] | 按利润表营业支出项目汇总 | 基于历史数据+趋势分析 |
+  | 6 | Operating expenses growth rate | [具体数值] | 基于历史数据预测 | 考虑波动性采用3年平均 |
+  | 7 | Current & forecast Depreciation / Amortization | [具体数值] | 按利润表损益中折旧摊销 | 考虑未来平价假设 |
+  | 8 | Investment/rental income | [具体数值] | 按利润表其他收入 | 考虑稳定性，波动大取3年平均 |
+  | 9 | of which non-cash investment income | [具体数值] | 按财务报表附注 | 从投资收入中分离 |
+  | 10 | Share of contributions from associates or JV | [具体数值] | 按投资收益项目 | 考虑持续性和趋势 |
+  | 11 | Dividend received from Associates or JV | [具体数值] | 现金流量表投资活动 | 考虑波动性，保守处理 |
+  | 12 | Dividend receivable | [具体数值] | 资产负债表应收股利 | 保守处理，通常设为平价 |
+  | 13 | All other non-operating income | [具体数值] | 按利润表营业外收入 | 剔除非经常性项目 |
+  | 14 | All other non-operating expenditure | [具体数值] | 按利润表营业外支出 | 关注资产减值和汇率损失趋势 |
+  | 15 | Current & forecast Tax expense rate | [具体数值] | 按所得税费用/税前利润 | 考虑新市场影响，波动大取3年平均 |
+  | 16 | Current & forecast Dividends payout rate | [具体数值] | 按应付股利/净利润 | 基于历史分红政策 |
+  | 17 | Current & forecast Dividends payable | [具体数值] | 资产负债表应付股利 | 通常设为平价 |
+  | 18 | Current & forecast Bad debt provision / exp | [具体数值] | 按信用减值损失/营业收入 | 考虑信用政策、客户信誉、宏观经济 |
+  | 19 | Debtors' t/o (days) | [具体数值] | 按(应收账款/营业收入)×365 | 保守原则，波动大取3年平均 |
+  | 20 | Debtors (absolute amt) | [具体数值] | 资产负债表应收账款 | 按财务报表 |
+  | 21 | Inventory t/o (days) | [具体数值] | 按(存货/营业成本)×365 | 如适用，保守原则，波动大取3年平均 |
+  | 22 | Inventory (absolute amt) | [具体数值] | 资产负债表存货 | 按财务报表 |
+  | 23 | Creditors' t/o (days) | [具体数值] | 按(应付账款/营业成本)×365 | 保守原则，波动大取3年平均 |
+  | 24 | Creditor (absolute amt) | [具体数值] | 资产负债表应付账款 | 按财务报表 |
+  | 25 | CAPEX (absolute amt) | [具体数值] | 现金流量表购建固定资产等 | 包括未来扩张计划+定期维护 |
+  | 26 | Estimated useful life of CAPEX | [具体数值] | 按固定资产折旧政策 | 按直线法计算 |
+  | 27 | Acquisition of investment | [具体数值] | 现金流量表投资支付 | 考虑商业决定因素 |
+  | 28 | Proceeds of disposal of FA/investment | [具体数值] | 现金流量表处置收益 | 通常保守设为0 |
+  | 29 | all other current assets | [具体数值] | 资产负债表其他流动资产 | 通常设为平价，需解释变动 |
+  | 30 | all other current liabilities | [具体数值] | 资产负债表其他流动负债 | 通常设为平价，需解释变动 |
+  | 31 | interco claim | [具体数值] | 资产负债表关联方应收款 | 通常设为平价或按历史趋势 |
+  | 32 | interco debt | [具体数值] | 资产负债表关联方应付款 | 通常设为平价或按历史趋势 |
+  | 33 | all other long term assets | [具体数值] | 资产负债表其他非流动资产 | 通常设为平价 |
+  | 34 | all other long term liabilities | [具体数值] | 资产负债表其他非流动负债 | 通常设为平价 |
+  | 35 | Net Proceed of capital issue | [具体数值] | 现金流量表吸收投资收到的现金 | 通常保守处理 |
+  | 36 | Proceed from new bond issue | [具体数值] | 现金流量表发行债券收到的现金 | 考虑历史记录和市场计划 |
+  | 37 | Bond Repayment | [具体数值] | 现金流量表偿还债务支付的现金 | 按到期日分布 |
+  | 38 | Cash balance c/f | [具体数值] | 资产负债表现金及现金等价物 | 不含受限制资金 |
+  | 39 | New Debt (excluding Capex financing) | [具体数值] | 筹资活动+融资需求+还款能力 | 考虑历史融资模式、资金需求、还款能力 |
+  | 40 | Principal repayment - existing debt | [具体数值] | 按到期日分布计算 | 按到期日分布，未披露按期限均分 |
+  | 41 | weighted avg. interest rate | [具体数值] | 按各项债务加权平均计算 | 考虑市场利率和汇率趋势 |
+
+  输出要求：
+   1. 必须使用Markdown表格格式输出，不得改变表格结构
+   2. 每项数据必须填入具体数值，无法获取的填入"无法从财务报表获取"
+   3. 数据来源栏需明确说明数据来自财务报表的具体位置
+   4. 预测依据栏需详细说明预测方法和参考因素
+   5. 保持数据格式统一，便于后续录入模板
+   6. 如无法从财务报表直接获取的数据，需在备注栏明确标注并提供计算方法或替代方案
+
+✦ 请根据提供的财务报表，完整提取上述所有数据项，确保每个数据项目都有明确的参考来源和计算说明，并严格按照指定的Markdown表格格式输出。
